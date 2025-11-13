@@ -1,0 +1,5 @@
+{
+  "name": "WebP to PNG Converter",
+  "description": "A client-side web application to convert WebP images to PNG format with a drag-and-drop interface and instant previews.",
+  "requestFramePermissions": []
+}
