@@ -3,16 +3,19 @@ import React, { useState, useCallback } from 'react';
 import { UploadIcon } from './icons/UploadIcon';
 
 interface FileUploadProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (files: FileList) => void;
   errorMessage?: string;
+  compact?: boolean;
 }
 
-export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, errorMessage }) => {
+export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, errorMessage, compact = false }) => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      onFileSelect(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+      onFileSelect(e.target.files);
+      // Reset input value to allow selecting the same file again
+      e.target.value = '';
     }
   };
 
@@ -38,8 +41,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, errorMessa
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      onFileSelect(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      onFileSelect(e.dataTransfer.files);
     }
   }, [onFileSelect]);
 
@@ -48,6 +51,21 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, errorMessa
     : errorMessage
     ? 'border-red-500'
     : 'border-slate-600';
+
+  if (compact) {
+    return (
+        <label className={`relative w-full sm:w-auto px-6 py-3 border-2 ${borderStyle} border-dashed rounded-lg cursor-pointer bg-slate-800 hover:bg-slate-700/50 transition-colors duration-300 text-center`}>
+            <span>Add More Files</span>
+            <input
+              type="file"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              accept="image/webp"
+              onChange={handleFileChange}
+              multiple
+            />
+        </label>
+    )
+  }
 
   return (
     <div className="w-full flex flex-col items-center justify-center">
@@ -62,12 +80,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, errorMessa
         <p className="mt-4 text-lg font-semibold text-slate-300">
           <span className="text-indigo-400">Click to upload</span> or drag and drop
         </p>
-        <p className="mt-1 text-sm text-slate-500">WebP image file only</p>
+        <p className="mt-1 text-sm text-slate-500">WebP image files only</p>
         <input
           type="file"
           className="hidden"
           accept="image/webp"
           onChange={handleFileChange}
+          multiple
         />
       </label>
       {errorMessage && <p className="mt-4 text-red-400 text-sm font-medium">{errorMessage}</p>}
